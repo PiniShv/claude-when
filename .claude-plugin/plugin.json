@@ -1,0 +1,9 @@
+{
+  "name": "when",
+  "version": "0.2.0",
+  "description": "Shows the date and time on every message in Claude Code, yours and Claude's, and tells Claude when each prompt was sent.",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Pini Shvartsman"
+  }
+}

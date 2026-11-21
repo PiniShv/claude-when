@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>When: the date and time on every Claude Code message</title>
+<meta name="description" content="When puts the date and time above every message in Claude Code, and tells Claude when each prompt was sent. One small file, no network calls, no account. Free and open source.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://pinishv.github.io/claude-when/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pinishv.github.io/claude-when/">
+<meta property="og:site_name" content="When">
+<meta property="og:title" content="When: the date and time on every Claude Code message">
+<meta property="og:description" content="Every message, with its time. When puts the date and time above each message in Claude Code, and tells Claude when each prompt was sent. Free and open source.">
+<meta property="og:image" content="https://pinishv.github.io/claude-when/media/social.png">
+<meta property="og:image:alt" content="When: the date and time on every Claude Code message.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="When: the date and time on every Claude Code message">
+<meta name="twitter:description" content="Every message, with its time. Free and open source.">
+<meta name="twitter:image" content="https://pinishv.github.io/claude-when/media/social.png">
+<meta name="twitter:image:alt" content="When: the date and time on every Claude Code message.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"When","url":"https://pinishv.github.io/claude-when/","description":"A mod for Claude Code that puts the date and time on every message and tells Claude when each prompt was sent.","applicationCategory":"DeveloperApplication","license":"https://www.apache.org/licenses/LICENSE-2.0","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"sameAs":"https://github.com/PiniShv/claude-when","author":{"@type":"Person","name":"Pini Shvartsman"}}
+</script>
+<script>document.documentElement.className="js"</script>
+<link rel="stylesheet" href="when-sim.css">
+<style>
+/* ---------- Tokens. Light by default, dark by preference. .dk marks a block that is dark in both. ---------- */
+:root{
+  color-scheme:light dark;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --font-text:var(--sans);--font-mono:var(--mono);
+  --gut:clamp(20px,5vw,44px);--nav:52px;
+  --bg:#fff;--bg2:#f5f5f7;--tile:#f5f5f7;--tile2:#fff;
+  --text:#1d1d1f;--muted:#6e6e73;--dim:#8e8e93;--line:#d2d2d7;--line2:rgba(0,0,0,.08);
+  --link:#0066cc;--btn:#0071e3;--btn-h:#0066cc;--focus:#0071e3;
+  --ok:#1b7f37;--warn:#8a5a00;--hot:#bf4800;--chip:rgba(0,0,0,.05);
+  --glow:0 44px 120px -38px rgba(41,151,255,.55);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#000;--bg2:#0c0c0e;--tile:#161617;--tile2:#161617;
+    --text:#f5f5f7;--muted:#98989d;--dim:#6e6e73;--line:#424245;--line2:rgba(255,255,255,.1);
+    --link:#2997ff;--focus:#64b5ff;--ok:#30d158;--warn:#ffd60a;--hot:#ff9f0a;--chip:rgba(255,255,255,.1);
+  }
+}
+.dk{
+  color:var(--text);
+  --bg:#000;--bg2:#000;--tile:#161617;--tile2:#161617;
+  --text:#f5f5f7;--muted:#98989d;--dim:#6e6e73;--line:#424245;--line2:rgba(255,255,255,.1);
+  --link:#2997ff;--focus:#64b5ff;--ok:#30d158;--warn:#ffd60a;--hot:#ff9f0a;--chip:rgba(255,255,255,.1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:calc(var(--nav) + 8px);background:#000}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:400 1.0625rem/1.47 var(--sans);letter-spacing:-.01em;-webkit-font-smoothing:antialiased;overflow-wrap:break-word}
+a{color:var(--link);text-decoration:none;text-underline-offset:.2em}
+a:hover{text-decoration:underline}
+:where(p) a:not([class]){text-decoration:underline;text-decoration-thickness:1px}
+code,kbd{font-family:var(--mono);letter-spacing:0;overflow-wrap:anywhere}
+p{margin:0 0 1em}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance}
+ul,ol,dl,dd{margin:0;padding:0}
+[role=list]{list-style:none}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
+main:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.nw{white-space:nowrap}
+.i{width:1.1em;height:1.1em;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.17em}
+.skip{position:absolute;left:16px;top:-5em;z-index:50;background:var(--btn);color:#fff;padding:.7rem 1.1rem;border-radius:999px}
+.skip:focus{top:8px}
+.wrap{width:min(100% - 2*var(--gut),1200px);margin-inline:auto}
+:where(p,li,dd,summary) code{padding:.1em .38em;border-radius:6px;background:var(--chip);font-size:.88em}
+
+/* ---------- Type and sections ---------- */
+h1{font-size:clamp(2.75rem,.9rem + 6.1vw,5.25rem);line-height:1.04;letter-spacing:-.022em}
+h2{font-size:clamp(2.125rem,1.2rem + 3.6vw,4rem);line-height:1.06;letter-spacing:-.02em}
+h3{font-size:1.5rem;line-height:1.16;letter-spacing:-.015em}
+.mu{color:var(--muted)}
+.sec{position:relative;padding-block:clamp(84px,11vw,150px);background:var(--bg);color:var(--text)}
+.sec.alt{background:var(--bg2);--tile:var(--tile2)}
+.head{max-width:900px;margin:0 auto clamp(40px,5.6vw,72px);text-align:center}
+.lede{margin:20px auto 0;max-width:34em;color:var(--muted);font-size:clamp(1.1875rem,1.06rem + .5vw,1.4375rem);line-height:1.38;font-weight:600;letter-spacing:-.012em;text-wrap:pretty}
+.lede b{color:var(--text);font-weight:600}
+.more{margin:28px 0 0;text-align:center}
+.go{display:inline-flex;align-items:center;min-height:44px}
+.go::after{content:"\203A";content:"\203A" / "";margin-left:.3em;display:inline-block;transition:transform .15s}
+.go:hover::after{transform:translateX(3px)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 26px;border:0;border-radius:999px;background:var(--btn);color:#fff;font:400 1.0625rem/1 var(--sans);letter-spacing:-.01em;white-space:nowrap;cursor:pointer;transition:background-color .15s,box-shadow .15s,transform .15s}
+.btn:hover{background:var(--btn-h);text-decoration:none}
+.btn-2{background:transparent;color:var(--link);box-shadow:inset 0 0 0 1px currentColor}
+.btn-2:hover{background:var(--chip)}
+@media (hover:hover) and (pointer:fine){.btn:hover{transform:translateY(-1px)}}
+.btn:active{transform:translateY(1px) scale(.985);transition-duration:.09s}
+
+/* ---------- Nav: dark glass in both themes ---------- */
+.top{position:sticky;top:0;z-index:40;background:#161617;border-bottom:1px solid rgba(255,255,255,.1)}
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){.top{background:rgba(22,22,23,.9);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}}
+.bar{display:flex;align-items:center;gap:6px;min-height:var(--nav)}
+.brand{display:inline-flex;align-items:center;gap:9px;margin-right:auto;min-height:44px;color:var(--text);font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.brand:hover{text-decoration:none}
+.brand img{display:block;width:22px;height:22px;border-radius:5px}
+.links ul{display:flex;align-items:center;gap:clamp(0px,.8vw,10px)}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 9px;color:var(--muted);font-size:.8125rem;letter-spacing:0;white-space:nowrap;border-radius:6px;transition:color .15s}
+.links a:hover,.links a[aria-current=true]{color:var(--text);text-decoration:none}
+.inst{position:relative;display:inline-flex;align-items:center;min-height:30px;margin-left:10px;padding:0 14px;border-radius:999px;background:var(--btn);color:#fff;font-size:.8125rem;letter-spacing:0;white-space:nowrap;transition:background-color .15s}
+.inst::after{content:"";position:absolute;inset:-8px -4px}
+.inst:hover{background:var(--btn-h);text-decoration:none}
+.mnav{display:none}
+.mnav summary{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 10px;color:var(--text);font-size:.875rem;cursor:pointer;list-style:none;border-radius:999px}
+.mnav summary::-webkit-details-marker{display:none}
+.mnav summary::after{content:"";width:7px;height:7px;margin:-3px 0 0 2px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.mnav details[open] summary::after{transform:rotate(225deg);margin-top:3px}
+.mnav ul{position:absolute;left:0;right:0;top:100%;padding:4px var(--gut) 20px;background:#161617;border-bottom:1px solid rgba(255,255,255,.1);max-height:calc(100vh - var(--nav) - 1px);overflow:auto}
+.mnav li+li{border-top:1px solid rgba(255,255,255,.1)}
+.mnav li a{display:flex;align-items:center;min-height:54px;color:var(--text);font-size:1.5rem;font-weight:600;letter-spacing:-.02em}
+@media (max-width:859px){.links{display:none}.mnav{display:block}}
+
+/* ---------- The chat window (when-sim.css), set into this page's colours. It stays neutral. ---------- */
+.ws{--ws-bg:#1c1c1e;--ws-bar:#262629;--ws-line:rgba(255,255,255,.12);--ws-bubble:#2c2c2f;--ws-ink:#f5f5f7;--ws-text:#d6d6da;--ws-dim:#98989d;--ws-hi:#cfe6ff;--ws-hi-bg:#0a6fd6;--ws-k:2.1;border-radius:14px;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 70px -28px #000}
+.ws__title{color:#98989d}
+.ws__input{background:#222225;color:#98989d}
+.ws__input i{background:#34343a}
+[data-sim]{height:100%}
+.ws-pause{position:absolute;right:16px;bottom:16px;z-index:3;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(66,66,69,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#f5f5f7;cursor:pointer;transition:background-color .15s,transform .15s}
+.ws-pause:hover{background:rgba(90,90,94,.86)}
+.ws-pause:active{transform:scale(.92)}
+.ws-pause svg{width:16px;height:16px;fill:currentColor}
+html:not(.js) .ws__body{flex:none;overflow:visible}
+html:not(.js) .ws{height:auto}
+
+/* ---------- Hero ---------- */
+.hero{display:flex;flex-direction:column;min-height:clamp(680px,calc(100svh - var(--nav) - 1px),960px);padding-top:clamp(40px,6.4vh,84px);overflow:hidden;text-align:center;background:radial-gradient(56% 46% at 50% 104%,rgba(41,151,255,.28),transparent 72%),#000}
+.kicker{margin:0 0 10px;font-size:clamp(1.1875rem,1rem + .6vw,1.5rem);font-weight:600;letter-spacing:-.015em;color:var(--muted)}
+.hero h1{max-width:13em;margin-inline:auto}
+.hero h1 span{display:inline-block}
+.hero .lede{max-width:31em;margin-top:clamp(16px,2vw,24px)}
+.cta{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:clamp(22px,2.6vw,32px)}
+@media (max-width:479px){.cta{flex-direction:column;align-items:stretch}}
+.fact{margin:18px auto 0;color:var(--muted);font-size:.875rem;letter-spacing:0;text-wrap:balance}
+.shot{flex:1 1 0;min-height:260px;width:min(100% - 2*var(--gut),820px);margin:clamp(28px,4.4vh,56px) auto 0;-webkit-mask-image:linear-gradient(#000 60%,transparent 98%);mask-image:linear-gradient(#000 60%,transparent 98%)}
+.shot .ws{--ws-k:2.2}
+.shot .ws__input{display:none}
+@media (max-width:639px){.shot .ws{--ws-k:3.8}.shot{min-height:300px}}
+@media (prefers-reduced-motion:no-preference){
+  .hero [data-e]{animation:rise .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--e)*90ms)}
+  .shot{animation:winrise 1.2s cubic-bezier(.16,1,.3,1) .45s both}
+}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}}
+@keyframes winrise{from{opacity:0;translate:0 70px}}
+
+/* ---------- The film: the live window in a glowing frame ---------- */
+.cinema{padding-top:clamp(40px,6vw,84px)}
+.cinema .head{margin-bottom:clamp(28px,4vw,48px)}
+.film{max-width:1200px;margin:0 auto}
+.frame{position:relative;display:grid;place-items:center;aspect-ratio:16/9;padding:clamp(18px,4.2vw,60px);border-radius:clamp(14px,2.2vw,28px);overflow:hidden;background:radial-gradient(70% 80% at 50% 0,rgba(41,151,255,.18),transparent 70%),#0b0b0d;box-shadow:0 0 0 1px rgba(255,255,255,.1),var(--glow)}
+.frame .win{width:min(100%,860px);height:100%;min-height:0}
+.frame .ws{--ws-k:2.1}
+@media (max-width:899px){.frame{aspect-ratio:4/3}.frame .ws{--ws-k:2.6}}
+@media (max-width:639px){.frame{aspect-ratio:auto;height:640px;padding:12px 12px 72px}.frame .ws{--ws-k:4}}
+html:not(.js) .frame{aspect-ratio:auto;height:auto}
+
+/* ---------- The statement ---------- */
+.say p{max-width:21em;margin:0;font-size:clamp(1.75rem,.9rem + 3.4vw,3.5rem);line-height:1.12;font-weight:600;letter-spacing:-.02em;text-wrap:pretty}
+.say strong{font-weight:600;color:var(--link)}
+.say .w{transition:color .35s}
+.say .w.off{color:var(--dim)}
+
+/* ---------- Tiles ---------- */
+.bento{display:grid;gap:clamp(12px,1.5vw,20px);grid-template-columns:repeat(12,minmax(0,1fr))}
+.tile{position:relative;grid-column:span 12;display:flex;flex-direction:column;min-width:0;overflow:hidden;padding:clamp(26px,3.2vw,44px);border-radius:clamp(22px,2.6vw,30px);background:var(--tile);color:var(--text)}
+.tile h3{font-size:clamp(1.5rem,1.15rem + 1vw,2rem);line-height:1.1;letter-spacing:-.02em;max-width:13em}
+.tile p{margin:12px 0 0;max-width:30em;color:var(--muted);text-wrap:pretty}
+.tile .vis{margin-top:auto;padding-top:clamp(28px,3.6vw,44px)}
+.tile .tag{margin:0 0 12px;font-size:.8125rem;font-weight:600;letter-spacing:0;color:var(--hot)}
+@media (min-width:640px) and (max-width:979px){.t4{grid-column:span 6}.t4:last-child{grid-column:span 12}}
+@media (min-width:980px){.t4{grid-column:span 4}}
+.mock{position:relative;height:250px;-webkit-mask-image:linear-gradient(#000 78%,transparent 100%);mask-image:linear-gradient(#000 78%,transparent 100%)}
+.mock .ws{--ws-k:4.5;border-radius:14px;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 40px -24px rgba(0,0,0,.6)}
+.mock .ws__bar,.mock .ws__input{display:none}
+.mock .ws__body{padding:0 1.2em}
+.mock .ws__flow{padding-top:1.2em}
+.tile .onlyc{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:6px 14px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line);color:var(--muted);font-size:.8125rem;font-weight:500;letter-spacing:0}
+.onlyc .i{width:14px;height:14px}
+
+/* ---------- How it works: a dark stage in both themes ---------- */
+.stage{background:radial-gradient(70% 55% at 50% 46%,rgba(41,151,255,.12),transparent 72%),#000}
+.tl{display:grid;gap:0;grid-template-columns:minmax(0,1fr);list-style:none}
+.tl li{position:relative;padding:0 0 30px 28px;border-left:2px solid rgba(41,151,255,.45)}
+.tl li::before{content:"";position:absolute;left:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:#2997ff;box-shadow:0 0 0 4px rgba(41,151,255,.22)}
+.tl time{display:block;font:500 1.0625rem var(--mono);letter-spacing:0;color:var(--text)}
+.tl .d{display:block;margin-top:2px;font:400 .75rem var(--mono);letter-spacing:0;color:var(--dim)}
+.tl p{margin:8px 0 0;color:var(--muted);font-size:.9375rem;line-height:1.4}
+.tl p b{color:var(--text);font-weight:600}
+@media (min-width:860px){
+  .tl{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .tl li{padding:28px 18px 0 0;border-left:0;border-top:2px solid rgba(41,151,255,.45)}
+  .tl li::before{left:0;top:-6px}
+}
+.steps3{display:grid;gap:clamp(28px,4vw,48px);margin-top:clamp(48px,7vw,84px);grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){.steps3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.steps3 li{padding-top:20px;border-top:1px solid var(--line)}
+.steps3 h3{font-size:1.3125rem}
+.steps3 p{margin:10px 0 0;color:var(--muted)}
+
+/* ---------- Trust ---------- */
+.split{display:grid;gap:clamp(36px,6vw,80px);grid-template-columns:minmax(0,1fr);align-items:center}
+@media (min-width:940px){.split{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.split .lede{margin-inline:0}
+.split h2{font-size:clamp(2rem,1.2rem + 2.9vw,3.25rem)}
+.eyebrow{margin:0 0 12px;font-size:1.0625rem;font-weight:600;color:var(--hot)}
+.kv{padding:clamp(8px,1.4vw,16px) clamp(22px,3.2vw,40px);border-radius:clamp(22px,2.6vw,30px);background:var(--tile)}
+.kv>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:6px 20px;align-items:baseline;padding:18px 0;border-top:1px solid var(--line2)}
+.kv>div:first-child{border-top:0}
+.kv dt{color:var(--muted);font-size:1rem}
+.kv dd{font-size:1.125rem;font-weight:600;letter-spacing:-.012em}
+@media (max-width:459px){.kv>div{grid-template-columns:minmax(0,1fr)}}
+.facts{display:grid;gap:clamp(32px,4vw,52px) clamp(28px,4vw,56px);grid-template-columns:minmax(0,1fr)}
+@media (min-width:860px){.facts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.facts .i{display:block;width:34px;height:34px;margin-bottom:16px;stroke-width:1.5;color:var(--link)}
+.facts h3{font-size:1.3125rem}
+.facts p{margin:8px 0 0;color:var(--muted)}
+
+/* ---------- Install: dark in both themes ---------- */
+.term{border-radius:18px;overflow:hidden;background:var(--tile);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);text-align:left}
+.term-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.tabs{display:none;gap:4px;flex-wrap:wrap}
+.js .tabs{display:flex}
+.tabs button{min-height:44px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:500 .8125rem var(--sans);letter-spacing:0;cursor:pointer;transition:background-color .15s,color .15s}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected=true]{color:#fff;background:rgba(255,255,255,.14)}
+.panel{padding:20px clamp(16px,3vw,26px) 18px}
+html:not(.js) .panel[hidden]{display:block!important}
+html:not(.js) .panel+.panel{border-top:1px solid rgba(255,255,255,.12)}
+.plabel{display:block;margin:0 0 8px;font:600 .75rem var(--sans);color:var(--muted)}
+.js .term:not(.rm) .plabel{display:none}
+.cmdrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
+.ps{margin:0;font:500 1rem/1.6 var(--mono);color:var(--muted);user-select:none;-webkit-user-select:none}
+.cmd{display:block;font:500 clamp(.875rem,.8rem + .3vw,1rem)/1.6 var(--mono);letter-spacing:0;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+.copy{display:none;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border:0;border-radius:999px;background:var(--btn);color:#fff;font:400 .9375rem var(--sans);cursor:pointer;transition:background-color .15s,transform .15s}
+.js .copy{display:inline-flex}
+.copy:hover{background:var(--btn-h)}
+.copy:active{transform:scale(.96)}
+.copy.done{background:#30d158;color:#04210d}
+.hint{margin:14px 0 0;color:var(--muted);font-size:.9375rem}
+.hint b{color:var(--text);font-weight:600}
+.term :where(p) code{padding:0;background:none;color:var(--text)}
+@media (max-width:559px){.cmdrow{grid-template-columns:auto minmax(0,1fr);align-items:start}.copy{grid-column:1/-1;width:100%}}
+.install-wrap{max-width:800px;margin:0 auto}
+.rm{margin-top:20px}
+.fine{max-width:800px;margin:clamp(30px,4vw,44px) auto 0;color:var(--muted);font-size:.9375rem;text-align:center}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:800px;margin:0 auto;border-bottom:1px solid var(--line)}
+.faq details{border-top:1px solid var(--line)}
+.faq summary{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:64px;padding:16px 4px;font-size:clamp(1.125rem,1.02rem + .45vw,1.3125rem);font-weight:600;letter-spacing:-.015em;line-height:1.25;cursor:pointer;list-style:none;border-radius:8px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:focus-visible{outline-offset:-3px}
+.faq summary::after{content:"+";content:"+" / "";flex:none;font:300 1.75rem/1 var(--sans);color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.faq summary::after{transition:transform .25s}}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{padding:0 4px 26px;color:var(--muted);max-width:44em}
+.faq .a p{margin:0 0 .9em}
+.faq .a p:last-child{margin:0}
+
+/* ---------- Close and footer ---------- */
+.closer{padding-block:clamp(96px,13vw,180px);text-align:center;background:radial-gradient(60% 70% at 50% 110%,rgba(41,151,255,.22),transparent 70%),#000}
+.closer h2{font-size:clamp(2.75rem,1rem + 7vw,6rem);letter-spacing:-.025em}
+.closer .lede{margin-bottom:30px}
+.foot{padding:36px 0 40px;background:#000;border-top:1px solid var(--line);color:var(--muted);font-size:.8125rem;letter-spacing:0}
+.foot a{color:var(--muted)}
+.foot a:hover{color:var(--text)}
+.foot nav ul{display:flex;flex-wrap:wrap;gap:0 22px;padding:0 0 10px}
+.foot nav a{display:inline-flex;align-items:center;min-height:44px}
+.foot p{margin:0 0 6px}
+
+@media (forced-colors:active){
+  .term,.tile,.kv,.frame,.ws,.btn-2,.onlyc{border:1px solid CanvasText}
+  .btn,.inst,.copy,.ws-pause{border:1px solid ButtonText}
+  .tabs button[aria-selected=true],.links a[aria-current=true]{text-decoration:underline}
+  .say .w.off{color:GrayText}
+}
+</style>
+</head>
+<body id="top">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="m21 15-5-5L5 21"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top dk">
+<div class="wrap bar">
+<a class="brand" href="#top"><img src="favicon.svg" alt="" width="22" height="22"><span>When</span></a>
+<nav class="links" aria-label="Main">
+<ul role="list">
+<li><a href="#film">Film</a></li>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#trust">Trust</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#faq">Questions</a></li>
+</ul>
+</nav>
+<nav class="mnav" aria-label="Main menu">
+<details>
+<summary>Menu</summary>
+<ul role="list">
+<li><a href="#film">Film</a></li>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#trust">Trust</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#faq">Questions</a></li>
+</ul>
+</details>
+</nav>
+<a class="inst" href="#install">Install</a>
+</div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<section class="hero dk" aria-labelledby="h-hero">
+<div class="wrap">
+<p class="kicker" data-e style="--e:0">When</p>
+<h1 id="h-hero" data-e style="--e:1"><span class="mu">Every message.</span> <span>With its time.</span></h1>
+<p class="lede" data-e style="--e:2"><b>The date and time on every Claude Code message.</b> A dim line above each message you send and each reply from Claude.</p>
+<div class="cta" data-e style="--e:3">
+<a class="btn" href="#install">Install When</a>
+<a class="btn btn-2" href="https://github.com/PiniShv/claude-when">View the source on GitHub</a>
+</div>
+<p class="fact" data-e style="--e:4">Free and open source. One small file. No network calls.</p>
+</div>
+<div class="shot" role="img" aria-label="A chat window. A message from the user, Run the full test suite and fix what fails, has its date and time above it. Claude's reply has its own date and time above it.">
+<div data-sim="static" data-from="0" data-to="3" aria-hidden="true"></div>
+</div>
+</section>
+
+<section class="sec dk cinema" aria-labelledby="h-film">
+<div class="wrap">
+<div class="head">
+<h2 id="h-film">Each message, stamped. <span class="mu">Claude knows too.</span></h2>
+<p class="lede">Watch a short session. <b>Every message gets its time.</b> Then ask how long a step took.</p>
+</div>
+<figure class="film" id="film" style="margin-inline:auto">
+<div class="frame" data-sim-host>
+<div class="win"><div data-sim="loop" aria-hidden="true"></div></div>
+</div>
+<figcaption class="sr">A short session. You ask Claude to run the test suite and fix what fails. Claude starts replying five seconds later. About four minutes after your first message it says all 212 tests pass. About four minutes after that you ask how long that took, and two seconds later Claude answers: 4 minutes 12 seconds. Every message has its date and time above it.</figcaption>
+</figure>
+<p class="fact" style="text-align:center;margin-top:18px">A drawn example, shown on your own clock. Use the pause button by the window to stop it.</p>
+<noscript><p class="fact" style="text-align:center;margin-top:8px">Turn on JavaScript to watch the demo.</p></noscript>
+</div>
+</section>
+
+<section class="sec say" aria-labelledby="h-say">
+<div class="wrap">
+<h2 id="h-say" class="sr">Why When</h2>
+<p data-words>Claude Code shows no time on its messages. So in a long session, you cannot tell when you asked something, or how long a step took. <strong>When puts the date and time on every message.</strong> It also tells Claude when each prompt was sent, so Claude can answer from real times.</p>
+</div>
+</section>
+
+<section class="sec alt" id="places" aria-labelledby="h-places">
+<div class="wrap">
+<div class="head">
+<h2 id="h-places">Three places. One clock.</h2>
+<p class="lede">The time shows on screen. <b>Claude gets it too.</b></p>
+</div>
+<div class="bento">
+
+<article class="tile t4">
+<p class="tag">On screen</p>
+<h3>Your messages.</h3>
+<p>Each message you send gets its date and time above it, in your local time.</p>
+<div class="vis"><div class="mock" role="img" aria-label="Your message, Run the full test suite and fix what fails, with its date and time above it."><div data-sim="static" data-from="0" data-to="1" aria-hidden="true"></div></div></div>
+</article>
+
+<article class="tile t4">
+<p class="tag">On screen</p>
+<h3>Claude's replies.</h3>
+<p>Each reply gets one too. A reply's time is when Claude started writing it.</p>
+<div class="vis"><div class="mock" role="img" aria-label="Claude's reply, with its date and time above it, and a second reply, All 212 tests pass now, with its own date and time above it."><div data-sim="static" data-from="1" data-to="3" aria-hidden="true"></div></div></div>
+</article>
+
+<article class="tile t4">
+<p class="tag">In the model's view</p>
+<h3>Claude's own sense of time.</h3>
+<p>When tells Claude when each prompt was sent. Ask how long a step took and Claude answers from real times.</p>
+<div class="vis"><p class="onlyc"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg>A hidden note only Claude sees</p><div class="mock" role="img" aria-label="You ask, How long did that take. Claude answers, 4 minutes 12 seconds, from the times you asked and the tests passed."><div data-sim="static" data-from="3" data-to="5" aria-hidden="true"></div></div></div>
+</article>
+
+</div>
+</div>
+</section>
+
+<section class="sec dk stage" id="how-it-works" aria-labelledby="h-how">
+<div class="wrap">
+<div class="head">
+<h2 id="h-how">Send. Write. <span class="mu">Stamped.</span></h2>
+<p class="lede">When reads the computer's clock. <b>It keeps one time per message on your computer.</b></p>
+</div>
+<ol class="tl" aria-label="The example session, in time order">
+<li data-msg="0"><time datetime="2026-11-21T19:15:26">19:15:26</time><span class="d">2026-11-21</span><p><b>You send</b> a message.</p></li>
+<li data-msg="1"><time datetime="2026-11-21T19:15:31">19:15:31</time><span class="d">2026-11-21</span><p><b>Claude starts</b> writing a reply.</p></li>
+<li data-msg="2"><time datetime="2026-11-21T19:19:38">19:19:38</time><span class="d">2026-11-21</span><p><b>Claude starts</b> its next reply: all 212 tests pass.</p></li>
+<li data-msg="3"><time datetime="2026-11-21T19:24:02">19:24:02</time><span class="d">2026-11-21</span><p><b>You ask</b> how long that took.</p></li>
+<li data-msg="4"><time datetime="2026-11-21T19:24:04">19:24:04</time><span class="d">2026-11-21</span><p><b>Claude answers:</b> 4 minutes 12 seconds.</p></li>
+</ol>
+<ol class="steps3" role="list">
+<li><h3>You send a message.</h3><p>When notes the time on your computer's clock. It also tells Claude, in a hidden note only the model sees.</p></li>
+<li><h3>Claude starts writing.</h3><p>The time of a reply is when Claude started writing it, not when it finished.</p></li>
+<li><h3>The time is drawn above.</h3><p>A dim line shows above each message, on screen only. Your transcript is not changed.</p></li>
+</ol>
+</div>
+</section>
+
+<section class="sec" id="trust" aria-labelledby="h-trust">
+<div class="wrap split">
+<div>
+<p class="eyebrow">Small enough to read</p>
+<h2 id="h-trust">One small file.</h2>
+<p class="lede">No network calls, no telemetry and no account. <b>It reads the computer's clock and keeps one time per message on your computer.</b></p>
+<p class="more" style="text-align:left"><a class="go" href="https://github.com/PiniShv/claude-when">Read the source on GitHub</a></p>
+</div>
+<dl class="kv">
+<div><dt>Files</dt><dd>1 TypeScript file</dd></div>
+<div><dt>Size</dt><dd>About 150 lines</dd></div>
+<div><dt>Dependencies</dt><dd>None</dd></div>
+<div><dt>Network calls</dt><dd>None</dd></div>
+<div><dt>Telemetry</dt><dd>None</dd></div>
+<div><dt>Account</dt><dd>None</dd></div>
+<div><dt>Reads</dt><dd>The computer's clock</dd></div>
+<div><dt>Saves</dt><dd>One time per message, on your computer</dd></div>
+</dl>
+</div>
+</section>
+
+<section class="sec alt" id="good-to-know" aria-labelledby="h-know">
+<div class="wrap">
+<div class="head">
+<h2 id="h-know">Good to know.</h2>
+<p class="lede">What When does not do, <b>said up front.</b></p>
+</div>
+<ul class="facts" role="list">
+<li><svg class="i" aria-hidden="true"><use href="#i-image"/></svg><h3>Image-only messages get no time.</h3><p>A message that is only an image, with no text, gets no time.</p></li>
+<li><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg><h3>Older messages get no time.</h3><p>Messages from before you installed When get no time.</p></li>
+<li><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><h3>Desktop, terminal and VS Code.</h3><p>It is verified in the Claude Code desktop app, in the terminal and in the VS Code panel. You need a Claude Code version that supports mods.</p></li>
+</ul>
+</div>
+</section>
+
+<section class="sec dk" id="install" aria-labelledby="h-install">
+<div class="wrap">
+<div class="head">
+<h2 id="h-install">Install When.</h2>
+<p class="lede">Pick the way you use Claude Code. <b>It is free.</b></p>
+</div>
+<div class="install-wrap">
+<div class="term dk">
+<div class="term-bar">
+<div class="tabs" role="tablist" aria-label="Install method">
+<button type="button" role="tab" id="tab-app" aria-selected="true" aria-controls="panel-app">Desktop app</button>
+<button type="button" role="tab" id="tab-term" aria-selected="false" aria-controls="panel-term" tabindex="-1">Terminal session</button>
+<button type="button" role="tab" id="tab-shell" aria-selected="false" aria-controls="panel-shell" tabindex="-1">Shell</button>
+</div>
+</div>
+<div class="panel" role="tabpanel" id="panel-app" aria-labelledby="tab-app">
+<span class="plabel">Desktop app</span>
+<p class="hint" style="margin:0 0 16px">Click <b>+</b> next to the prompt box, then <b>Plugins</b>, then <b>Add marketplace</b>. Enter this:</p>
+<div class="cmdrow">
+<span class="ps" aria-hidden="true">&gt;</span>
+<code class="cmd" id="cmd-app">PiniShv/claude-when</code>
+<button type="button" class="copy" data-target="cmd-app"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span><span class="sr"> the marketplace name</span></button>
+</div>
+<p class="hint">Then click <b>Add plugin</b>.</p>
+</div>
+<div class="panel" role="tabpanel" id="panel-term" aria-labelledby="tab-term" hidden>
+<span class="plabel">Terminal session</span>
+<div class="cmdrow">
+<span class="ps" aria-hidden="true">&gt;</span>
+<code class="cmd" id="cmd-term">/plugin install when --marketplace PiniShv/claude-when</code>
+<button type="button" class="copy" data-target="cmd-term"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span><span class="sr"> the session command</span></button>
+</div>
+<p class="hint">Type it in a Claude Code session.</p>
+</div>
+<div class="panel" role="tabpanel" id="panel-shell" aria-labelledby="tab-shell" hidden>
+<span class="plabel">Shell</span>
+<div class="cmdrow">
+<span class="ps" aria-hidden="true">$</span>
+<code class="cmd" id="cmd-shell">claude plugin install when --marketplace PiniShv/claude-when</code>
+<button type="button" class="copy" data-target="cmd-shell"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span><span class="sr"> the shell command</span></button>
+</div>
+<p class="hint">Run it in your shell.</p>
+</div>
+</div>
+<div class="term dk rm">
+<div class="panel">
+<span class="plabel">To remove it</span>
+<div class="cmdrow">
+<span class="ps" aria-hidden="true">$</span>
+<code class="cmd" id="cmd-rm">claude plugin uninstall when@claude-when</code>
+<button type="button" class="copy" data-target="cmd-rm"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copy</span><span class="sr"> the remove command</span></button>
+</div>
+</div>
+</div>
+</div>
+<p class="fine">Messages from before you installed When get no time. <a href="#good-to-know">See the limits</a>.</p>
+</div>
+</section>
+
+<section class="sec alt" id="faq" aria-labelledby="h-faq">
+<div class="wrap">
+<div class="head">
+<h2 id="h-faq">Questions before you install.</h2>
+</div>
+<div class="faq">
+<details open>
+<summary>Does it send data anywhere?</summary>
+<div class="a"><p>No. When has no network calls, no telemetry and no account. It reads the computer's clock and keeps one time per message on your computer. Nothing leaves it.</p></div>
+</details>
+<details>
+<summary>Does it change my chat history?</summary>
+<div class="a"><p>No. The transcript is not changed. The time line is drawn on screen only.</p></div>
+</details>
+<details>
+<summary>Which app does it work in?</summary>
+<div class="a"><p>It works in the Claude Code desktop app, in the terminal and in the VS Code panel, and all three are verified. On the Claude mobile app you do not see the time line, but Claude still gets the send time of each message you type there. You need a Claude Code version that supports mods.</p></div>
+</details>
+<details>
+<summary>Why does an image-only message show no time?</summary>
+<div class="a"><p>When puts the time on messages that have text. A message that is only an image, with no text, gets no time. Messages from before you installed When get no time either.</p></div>
+</details>
+<details>
+<summary>How do I remove it?</summary>
+<div class="a"><p>Run this in your shell: <code>claude plugin uninstall when@claude-when</code></p></div>
+</details>
+<details>
+<summary>What does it cost?</summary>
+<div class="a"><p>Nothing. When is free, under the Apache License 2.0.</p></div>
+</details>
+</div>
+</div>
+</section>
+
+</main>
+
+<footer class="dk">
+<section class="closer" aria-labelledby="h-cta">
+<div class="wrap">
+<h2 id="h-cta">Know <span class="mu">when.</span></h2>
+<p class="lede">Free and open source, for Claude Code.</p>
+<div class="cta" style="margin-top:0">
+<a class="btn" href="#install">Install When</a>
+<a class="btn btn-2" href="https://github.com/PiniShv/claude-when">View the source on GitHub</a>
+</div>
+</div>
+</section>
+<div class="foot">
+<div class="wrap">
+<nav aria-label="Project links">
+<ul role="list">
+<li><a href="https://github.com/PiniShv/claude-when">Source</a></li>
+<li><a href="https://github.com/PiniShv/claude-when/blob/main/LICENSE">License: Apache-2.0</a></li>
+</ul>
+</nav>
+<p>When is an independent project. It is not made by or affiliated with Anthropic.</p>
+<p>&copy; 2026 Pini Shvartsman</p>
+</div>
+</div>
+</footer>
+
+<div class="sr" role="status" aria-live="polite" id="live"></div>
+
+<script src="when-sim.js"></script>
+<script>
+(function(){
+var d=document,live=d.getElementById('live');
+function say(t){live.textContent='';setTimeout(function(){live.textContent=t},50)}
+var mq=window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* A row of tabs: a click picks one, and the arrow keys, Home and End move to another and pick it. */
+function rove(list,pick){
+  list.forEach(function(b,i){
+    b.addEventListener('click',function(){pick(b)});
+    b.addEventListener('keydown',function(e){
+      var n,k=e.key;
+      if(k==='ArrowRight'||k==='ArrowDown')n=list[(i+1)%list.length];
+      else if(k==='ArrowLeft'||k==='ArrowUp')n=list[(i-1+list.length)%list.length];
+      else if(k==='Home')n=list[0];
+      else if(k==='End')n=list[list.length-1];
+      if(n){e.preventDefault();pick(n,true)}
+    });
+  });
+}
+var tabs=[].slice.call(d.querySelectorAll('[role=tab]'));
+rove(tabs,function(t,focus){
+  tabs.forEach(function(x){
+    var on=x===t;
+    x.setAttribute('aria-selected',on?'true':'false');
+    x.tabIndex=on?0:-1;
+    d.getElementById(x.getAttribute('aria-controls')).hidden=!on;
+  });
+  if(focus)t.focus();
+});
+
+/* Copy buttons. If the clipboard is not available, select the text instead. */
+[].forEach.call(d.querySelectorAll('.copy'),function(btn){
+  var el=d.getElementById(btn.getAttribute('data-target'));
+  var lbl=btn.querySelector('.lbl');
+  var panel=btn.closest('.panel'),hint=panel&&panel.querySelector('.hint');
+  var orig=hint?hint.innerHTML:'',timer;
+  function done(ok){
+    lbl.textContent=ok?'Copied':'Selected';
+    btn.classList.toggle('done',ok);
+    if(hint)hint.textContent=ok?'Copied. Paste it where you need it.':'Copy did not work here. The text is selected: press Cmd + C.';
+    say(ok?'Copied':'Selected. Press Command and C to copy it.');
+    clearTimeout(timer);
+    timer=setTimeout(function(){lbl.textContent='Copy';btn.classList.remove('done');if(hint)hint.innerHTML=orig},4000);
+  }
+  function fallback(){
+    var ok=false;
+    try{
+      var r=d.createRange(),s=window.getSelection();
+      r.selectNodeContents(el);s.removeAllRanges();s.addRange(r);
+      ok=d.execCommand('copy');
+    }catch(e){}
+    done(!!ok);
+  }
+  btn.addEventListener('click',function(){
+    var text=el.textContent.trim();
+    if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(function(){done(true)},fallback);
+    else fallback();
+  });
+});
+
+/* Phone menu: close it after a choice, or with Escape. */
+var menu=d.querySelector('.mnav details');
+if(menu){
+  [].forEach.call(menu.querySelectorAll('a'),function(a){a.addEventListener('click',function(){menu.open=false})});
+  d.addEventListener('keydown',function(e){if(e.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary').focus()}});
+}
+
+/* Work that follows the scroll position, once a frame. */
+var jobs=[],tick=0;
+function frame(){tick=0;jobs.forEach(function(job){job()})}
+
+/* Local nav: mark the section that crosses a line 40% down the screen. */
+var links=[].slice.call(d.querySelectorAll('.links a')),secs=[];
+links.forEach(function(a){
+  var s=d.getElementById(a.getAttribute('href').slice(1));
+  if(s)secs.push([s.closest('section')||s,a]);
+});
+jobs.push(function(){
+  var y=window.innerHeight*.4,cur=null;
+  secs.forEach(function(p){var r=p[0].getBoundingClientRect();if(r.top<=y&&r.bottom>y)cur=p[1]});
+  links.forEach(function(a){if(a===cur)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
+});
+
+/* The statement lights up word by word as it crosses the screen. Without script, or when the
+   device asks for less motion, every word is lit from the start. */
+var para=d.querySelector('[data-words]');
+if(para&&!mq.matches){
+  var words=[];
+  (function split(n){
+    [].slice.call(n.childNodes).forEach(function(c){
+      if(c.nodeType===3){
+        var f=d.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(function(t){
+          if(!t.trim()){f.appendChild(d.createTextNode(t));return}
+          var s=d.createElement('span');s.className='w off';s.textContent=t;words.push(s);f.appendChild(s);
+        });
+        n.replaceChild(f,c);
+      }else split(c);
+    });
+  })(para);
+  jobs.push(function(){
+    var h=window.innerHeight,r=para.getBoundingClientRect(),n=Math.round((h*.82-r.top)/(r.height+h*.3)*words.length);
+    words.forEach(function(w,i){w.classList.toggle('off',i>=n)});
+  });
+}
+window.addEventListener('scroll',function(){if(!tick)tick=requestAnimationFrame(frame)},{passive:true});
+window.addEventListener('resize',frame);
+frame();
+})();
+</script>
+</body>
+</html>

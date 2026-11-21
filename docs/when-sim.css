@@ -1,0 +1,50 @@
+/* The chat window used on the page and in demo.html. Sizes are in em; the window sets its own font-size
+   from its width, so the same markup is right at 340px and at 900px. */
+.ws {
+  --ws-bg: #141519; --ws-bar: #1a1b20; --ws-line: #2a2c33; --ws-bubble: #272930; --ws-ink: #e9ebef;
+  --ws-text: #cfd2d9; --ws-dim: #868c97; --ws-hi: #d6e2ff; --ws-hi-bg: #3a5bd9;
+  container-type: inline-size; position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0;
+  background: var(--ws-bg); border: 1px solid var(--ws-line); border-radius: 18px; overflow: hidden; color: var(--ws-text);
+  font-family: var(--font-text, system-ui, sans-serif); text-align: left;
+}
+.ws > * { font-size: clamp(11.5px, calc(var(--ws-k, 2.6) * 1cqw), 26px); }
+.ws__bar { flex: none; display: flex; align-items: center; height: 3em; padding: 0 1.1em; background: var(--ws-bar); border-bottom: 1px solid var(--ws-line); color: var(--ws-dim); font-size: .86em; }
+.ws__dots { display: flex; gap: .5em; width: 5em; }
+.ws__dots i { width: .72em; height: .72em; border-radius: 50%; background: #34363e; }
+.ws__title { flex: 1; text-align: center; font-weight: 500; letter-spacing: 0; color: #a3a8b2; }
+.ws__bar::after { content: ""; width: 5em; }
+.ws__body { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; padding: 0 1.4em;
+}
+.ws__flow { display: flex; flex-direction: column; gap: 1.45em; padding: 1.45em 0 1.4em; will-change: transform; }
+.ws__flow.is-eased { transition: transform .45s cubic-bezier(.22, 1, .36, 1); }
+.ws__flow.is-fading { transition: opacity .6s linear; }
+
+.m { display: flex; flex-direction: column; gap: .5em; opacity: 0; transform: translateY(.45em); }
+.m--user { align-items: flex-end; }
+.m__time {
+  --e: 0; align-self: flex-start; display: inline-block; margin-left: -.6em; padding: .22em .6em; border-radius: 999px; opacity: 0;
+  font: 400 .8em/1.2 var(--font-mono, ui-monospace, Menlo, monospace); letter-spacing: 0; font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--ws-hi) calc(var(--e) * 100%), var(--ws-dim));
+  background: color-mix(in srgb, color-mix(in srgb, var(--ws-hi-bg) 55%, transparent) calc(var(--e) * 100%), transparent);
+}
+.m--user .m__time { align-self: flex-end; margin-left: 0; margin-right: -.6em; }
+.m__bubble { max-width: 84%; padding: .8em 1.05em; background: var(--ws-bubble); color: var(--ws-ink); border-radius: 1.1em 1.1em .3em 1.1em; line-height: 1.45; opacity: 0; }
+.m__text { max-width: 92%; line-height: 1.55; color: var(--ws-text); opacity: 1; }
+.m__text p { margin: 0; }
+.m__text p + p { margin-top: .35em; }
+.m__text .c { visibility: hidden; }
+.m__text .c.on { visibility: visible; }
+.m__text .tm { font-family: var(--font-mono, ui-monospace, Menlo, monospace); font-size: .88em; color: var(--ws-ink); }
+.m__text b { font-weight: 500; color: var(--ws-ink); }
+.m__ran { display: inline-flex; align-items: center; gap: .55em; align-self: flex-start; padding: .2em 0; color: #9096a0; font-size: .86em; opacity: 0; }
+.m__ran svg { width: .9em; height: .9em; flex: none; }
+.ws__input { flex: none; display: flex; align-items: center; justify-content: space-between; margin: 0 1.1em 1.1em; padding: .75em .8em .75em 1.05em; border: 1px solid var(--ws-line); border-radius: .95em; color: #868c97; background: #181a1e; }
+.ws__input i { display: block; width: 1.7em; height: 1.7em; border-radius: 50%; background: #2a2c33; }
+.ws.is-static .m, .ws.is-static .m__bubble, .ws.is-static .m__ran, .ws.is-static .m__time { opacity: 1; transform: none; }
+.ws.is-static .m__text .c { visibility: visible; }
+.ws.is-static .m__time { --e: 0; }
+.ws-pause { position: absolute; right: var(--s-4, 16px); bottom: var(--s-4, 16px); z-index: 3; }
+@media (prefers-reduced-motion: reduce) { .ws__flow.is-eased { transition: none; } }
+[data-sim] { height: 100%; }
+.ws.is-static .ws__flow { transform: none !important; }
+.ws, .ws__body { min-width: 0; }

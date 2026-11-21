@@ -1,0 +1,7 @@
+# GitHub adds "Report a security vulnerability" itself, because SECURITY.md exists
+# and private vulnerability reporting is on, so it is not repeated here.
+blank_issues_enabled: true
+contact_links:
+  - name: Read what to expect
+    url: https://github.com/PiniShv/claude-when#good-to-know
+    about: Image-only messages and messages from before the install get no time. Check this list first.

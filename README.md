@@ -1,23 +1,29 @@
+<div align="center">
+
 # When
 
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+### Every message. With its time.
 
-**The date and time on every message in Claude Code.**
+**The date and time above every message in Claude Code, yours and Claude's.**
 
-![When showing a time above each message](docs/media/demo.gif)
+![Latest version](https://img.shields.io/github/v/release/PiniShv/claude-when?label=version)
+![Works in the desktop app, the terminal and VS Code](https://img.shields.io/badge/works%20in-desktop%20%C2%B7%20terminal%20%C2%B7%20VS%20Code-111)
+![No dependencies](https://img.shields.io/badge/dependencies-none-2FB344)
+![Apache-2.0 licence](https://img.shields.io/badge/license-Apache--2.0-2E7DF6)
+
+[Website](https://claude-when.pinishv.com) · [Install](#install) · [How it works](#how-it-works) · [Good to know](#good-to-know) · [Changelog](CHANGELOG.md)
+
+```bash
+claude plugin install when --marketplace PiniShv/claude-when
+```
+
+<a href="https://claude-when.pinishv.com"><img src="docs/media/social.png" alt="When: a chat in which every message has its date and time above it" width="760"></a>
+
+</div>
 
 Claude Code does not show when a message was sent. In a long session you cannot
-tell when you asked something, or how long a step took.
-
-When adds a quiet line above each message:
-
-```
-2026-11-21 19:15:26
-Run the full test suite and fix what fails.
-
-2026-11-21 19:15:31
-On it. Running the suite now.
-```
+tell when you asked something, or how long a step took. When adds a quiet line
+above each message, and tells Claude the time too.
 
 ## What it does
 
@@ -28,24 +34,37 @@ On it. Running the suite now.
 - **Claude knows the time too.** Each prompt carries a hidden note with its send
   time. Ask "how long did that take?" and Claude can answer from real times.
 
+![When showing a time above each message](docs/media/demo.gif)
+
 ## Install
 
-**Desktop app:** click `+` next to the prompt box, then **Plugins**, then
-**Add marketplace**. Enter `PiniShv/claude-when`, then choose **Add plugin**.
+**Desktop app**
 
-**Terminal session:**
+1. Click `+` next to the prompt box, then **Plugins**.
+2. Choose **Add marketplace** and enter `PiniShv/claude-when`.
+3. Choose **Add plugin**.
+
+**Terminal session**
 
 ```
 /plugin install when --marketplace PiniShv/claude-when
 ```
 
-**Shell:**
+**Shell**
 
 ```bash
 claude plugin install when --marketplace PiniShv/claude-when
 ```
 
-To remove it, uninstall the `when` plugin the same way you installed it.
+To update or remove it:
+
+```bash
+claude plugin update when@claude-when
+```
+
+```bash
+claude plugin uninstall when@claude-when
+```
 
 ## Nothing to trust
 
@@ -56,12 +75,15 @@ To remove it, uninstall the `when` plugin the same way you installed it.
 
 ## Good to know
 
-- Works in the Claude Code desktop app, in the terminal and in the VS Code panel. On the Claude mobile app the time line is not drawn, because the app does not ask the mod to draw. Claude still gets the send time of each message you type there.
-- In VS Code the app draws the time in a small card labelled with the plugin's name.
-- Times are saved on your computer, for the last 20,000 messages. A resumed session shows the times of messages sent after When was installed.
-- Needs a Claude Code version that supports mods.
-- A message that is only an image, with no text, gets no time.
-- Messages from before you installed When get no time.
+- **Where it works:** the Claude Code desktop app, the terminal and the VS Code
+  panel. VS Code draws the time in a small card labelled with the plugin's name.
+- **Mobile:** the Claude mobile app does not ask the mod to draw, so you see no
+  time line there. Claude still gets the send time of each message you type.
+- **What gets a time:** every message with text. A message that is only an image
+  gets none, and neither do messages from before you installed When.
+- **Saved times:** kept on your computer for the last 20,000 messages. A resumed
+  session shows the times of messages sent after When was installed.
+- **Version:** needs a Claude Code version that supports mods.
 
 ## How it works
 
